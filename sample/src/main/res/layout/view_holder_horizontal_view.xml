@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    >
+
+  <TextView
+      android:id="@+id/delete_button"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="16dp"
+      android:textColor="@android:color/white"
+      android:layout_gravity="top"
+      android:background="#FFD31313"
+      android:text="Delete"/>
+
+  <TextView
+      android:id="@+id/edit_button"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="16dp"
+      android:textColor="@android:color/white"
+      android:layout_gravity="bottom"
+      android:background="@android:color/holo_blue_dark"
+      android:text="Edit"/>
+
+  <LinearLayout
+      android:id="@+id/content_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@android:color/white"
+      android:paddingLeft="8dp"
+      android:paddingRight="8dp"
+      android:clickable="true"
+      android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/display_text"
+        android:text="sample text"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+  </LinearLayout>
+
+
+</FrameLayout>
