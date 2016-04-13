@@ -5,7 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Created by atownsend on 4/8/16.
+ * Interface for interacting with a swipe open ViewHolder.
+ * ViewHolders that are to be swiped <b>must</b> implement this interface
  */
 public interface SwipeOpenViewHolder {
 
