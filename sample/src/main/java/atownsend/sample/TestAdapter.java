@@ -13,9 +13,6 @@ import atownsend.swipeopenhelper.BaseSwipeOpenViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by atownsend on 12/11/15.
- */
 public class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
   private final Context context;
