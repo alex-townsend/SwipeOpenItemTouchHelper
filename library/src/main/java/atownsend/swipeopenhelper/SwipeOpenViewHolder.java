@@ -39,12 +39,16 @@ public interface SwipeOpenViewHolder {
   float getStartHiddenViewSize();
 
   /**
-   * Notify the SwipeOpenHolder that the START view has become visible from a swipe
+   * Notify the SwipeOpenHolder that the START view has become visible from a swipe.
+   * Ex: This could be used to set a background color to the underlying view so that it matches your
+   * hidden view during an over-swipe
    */
   void notifyStartOpen();
 
   /**
    * Notify the SwipeOpenHolder that the END View has become visible from a swipe
+   * Ex: This could be used to set a background color to the underlying view so that it matches your
+   * hidden view during an over-swipe
    */
   void notifyEndOpen();
 
