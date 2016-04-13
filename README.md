@@ -2,6 +2,8 @@ SwipeOpenItemTouchHelper
 ========================
 Library to easily add swipe-to-open functionality to any RecyclerView.
 
+![Crappy Gif](https://github.com/alex-townsend/SwipeOpenItemTouchHelper/blob/master/sample.gif)
+
 How To
 ------
 
