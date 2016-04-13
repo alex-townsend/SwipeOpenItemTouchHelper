@@ -1,5 +1,24 @@
 package atownsend.swipeopenhelper;
 
+/*
+ * Adapted from Google's android.support.v7.widget.helper.ItemTouchHelper
+ * https://github.com/android/platform_frameworks_support/blob/master/v7/recyclerview/src/android/support/v7/widget/helper/ItemTouchHelper.java
+ *
+ * Copyright (C) 2015 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -23,28 +42,28 @@ import java.util.List;
 
 /**
  * Helper class to allow for swiping open hidden views of a RecyclerView.
- * Extended from and based off of {@link android.support.v7.widget.helper.ItemTouchHelper}
+ * Adapted from and based off of Google's {@link android.support.v7.widget.helper.ItemTouchHelper}
  */
 public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     implements RecyclerView.OnChildAttachStateChangeListener {
 
   /**
-   * Up direction, used for swipe & drag control.
+   * Up direction, used for swipe to open
    */
   public static final int UP = 1;
 
   /**
-   * Down direction, used for swipe & drag control.
+   * Down direction, used for swipe to open
    */
   public static final int DOWN = 1 << 1;
 
   /**
-   * Left direction, used for swipe & drag control.
+   * Left direction, used for swipe to open
    */
   public static final int LEFT = 1 << 2;
 
   /**
-   * Right direction, used for swipe & drag control.
+   * Right direction, used for swipe to open
    */
   public static final int RIGHT = 1 << 3;
 
@@ -64,8 +83,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   /**
    * SwipeOpenItemTouchHelper is in idle state. At this state, either there is no related motion
-   * event by
-   * the user or latest motion events have not yet triggered a swipe or drag.
+   * event by the user or latest motion events have not yet triggered a swipe or drag.
    */
   public static final int ACTION_STATE_IDLE = 0;
 
@@ -284,9 +302,9 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   private SwipeOpenViewHolder prevSelected;
 
   /**
-   * Creates an ItemTouchHelper that will work with the given Callback.
+   * Creates an SwipeOpenItemTouchHelper that will work with the given Callback.
    * <p>
-   * You can attach ItemTouchHelper to a RecyclerView via
+   * You can attach SwipeOpenItemTouchHelper to a RecyclerView via
    * {@link #attachToRecyclerView(RecyclerView)}. Upon attaching, it will add an item decoration,
    * an onItemTouchListener and a Child attach / detach listener to the RecyclerView.
    *
@@ -304,12 +322,12 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   }
 
   /**
-   * Attaches the ItemTouchHelper to the provided RecyclerView. If TouchHelper is already
+   * Attaches the SwipeOpenItemTouchHelper to the provided RecyclerView. If the helper is already
    * attached to a RecyclerView, it will first detach from the previous one. You can call this
    * method with {@code null} to detach it from the current RecyclerView.
    *
    * @param recyclerView The RecyclerView instance to which you want to add this helper or
-   * {@code null} if you want to remove ItemTouchHelper from the current
+   * {@code null} if you want to remove SwipeOpenItemTouchHelper from the current
    * RecyclerView.
    */
   public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
@@ -408,10 +426,10 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     // close the previously selected view holder if we're swiping a new one
     if (selected != null && prevSelected != null && selected != prevSelected) {
       final View swipeView = prevSelected.getSwipeView();
-      final RecoverAnimation rv = new RecoverAnimation(prevSelected, 0, ViewCompat.getTranslationX(swipeView),
-          ViewCompat.getTranslationY(swipeView), 0, 0);
-      final long duration =
-          callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, 0, 0);
+      final RecoverAnimation rv =
+          new RecoverAnimation(prevSelected, 0, ViewCompat.getTranslationX(swipeView),
+              ViewCompat.getTranslationY(swipeView), 0, 0);
+      final long duration = callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, 0, 0);
       rv.setDuration(duration);
       recoverAnimations.add(rv);
       rv.start();
@@ -477,9 +495,8 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
         final RecoverAnimation rv =
             new RecoverAnimation(prevSelected, prevActionState, currentTranslateX,
                 currentTranslateY, targetTranslateX, targetTranslateY);
-        final long duration =
-            callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, targetTranslateX - currentTranslateX,
-                targetTranslateY - currentTranslateY);
+        final long duration = callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE,
+            targetTranslateX - currentTranslateX, targetTranslateY - currentTranslateY);
         rv.setDuration(duration);
         recoverAnimations.add(rv);
         rv.start();
@@ -684,7 +701,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   public void startSwipe(SwipeOpenViewHolder viewHolder) {
     if (viewHolder.getViewHolder().itemView.getParent() != recyclerView) {
       Log.e(TAG, "Start swipe has been called with a view holder which is not a child of "
-          + "the RecyclerView controlled by this ItemTouchHelper.");
+          + "the RecyclerView controlled by this SwipeOpenItemTouchHelper.");
       return;
     }
     obtainVelocityTracker();
@@ -820,15 +837,14 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     /**
-     * Called when the ViewHolder swiped or dragged by the ItemTouchHelper is changed.
+     * Called when the ViewHolder is changed.
      * <p/>
      * If you override this method, you should call super.
      *
-     * @param viewHolder The new ViewHolder that is being swiped or dragged. Might be null if
+     * @param viewHolder The new ViewHolder that is being swiped. Might be null if
      * it is cleared.
-     * @param actionState One of {@link ItemTouchHelper#ACTION_STATE_IDLE},
-     * {@link ItemTouchHelper#ACTION_STATE_SWIPE} or
-     * {@link ItemTouchHelper#ACTION_STATE_DRAG}.
+     * @param actionState One of {@link SwipeOpenItemTouchHelper#ACTION_STATE_IDLE},
+     * {@link SwipeOpenItemTouchHelper#ACTION_STATE_SWIPE}
      * @see #clearView(RecyclerView, SwipeOpenViewHolder)
      */
     public void onSelectedChanged(SwipeOpenViewHolder viewHolder, int actionState) {
@@ -933,7 +949,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
    * Simple callback class that defines the swipe directions allowed and delegates everything else
    * to the base class
    */
-  public static class SimpleCallback extends Callback {
+  @SuppressWarnings("UnusedParameters") public static class SimpleCallback extends Callback {
 
     private int mDefaultSwipeDirs;
 
