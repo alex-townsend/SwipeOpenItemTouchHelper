@@ -4,7 +4,43 @@ Library to easily add swipe-to-open functionality to any RecyclerView.
 
 How To
 ------
-See [sample](https://github.com/alex-townsend/SwipeOpenItemTouchHelper/tree/master/sample) for examples on how to implement on vertical or horizontal `RecyclerView`.
+
+Create `SwipeOpenItemTouchHelper` and add to your `RecyclerView`
+
+```java
+RecyclerView recyclerView = ...
+SwipeOpenItemTouchHelper helper = new SwipeOpenItemTouchHelper(new SwipeOpenItemTouchHelper.SimpleCallback(
+	SwipeOpenItemTouchHelper.START | SwipeOpenItemTouchHelper.END));
+helper.attachToRecyclerView(recyclerview);
+```
+
+Implement ViewHolders by extending `BaseSwipeOpenViewHolder` or implementing `SwipeOpenViewHolder`.
+```java
+static class SwipeViewHolder extends BaseSwipeOpenViewHolder {
+
+  public LinearLayout swipeView;
+  public TextView startView;
+  public TextView endView;
+  
+  // view holder code
+
+  @NonNull @Override public View getSwipeView() {
+    return swipeView;
+  }
+
+  @Override public float getEndHiddenViewSize() {
+    return endView.getMeasuredWidth();
+  }
+
+  @Override public float getStartHiddenViewSize() {
+    return startView.getMeasuredWidth();
+  }
+}
+```
+
+And that's it! Your swipe view can now be swiped open/closed (as long as your layouts are setup correctly).
+
+See [sample](https://github.com/alex-townsend/SwipeOpenItemTouchHelper/tree/master/sample) for examples on how to implement on vertical or horizontal `RecyclerView`, as well as example layouts for a `ViewHolder`.
 
 
 Build
@@ -64,8 +100,7 @@ License
     limitations under the License.
 
 
-License for ItemTouchHelper (that this library was adapted from)
--------
+###### License for ItemTouchHelper (that this library was adapted from)
 
     Copyright 2015 The Android Open Source Project
     https://github.com/android/platform_frameworks_support/blob/master/v7/recyclerview/src/android/support/v7/widget/helper/ItemTouchHelper.java
