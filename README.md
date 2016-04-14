@@ -66,7 +66,7 @@ compile 'com.github.alex-townsend:SwipeOpenItemTouchHelper:0.1.0'
 
 Or, add through Maven:
 
-- Add jitack repository
+- Add jitpack repository
 ```xml
 <repositories>
 	<repository>
