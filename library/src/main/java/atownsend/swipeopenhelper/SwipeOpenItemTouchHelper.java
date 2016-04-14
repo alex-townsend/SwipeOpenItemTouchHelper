@@ -290,12 +290,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       if (prevSelected != null && (dx != 0 || dy != 0) && (Math.abs(
           ViewCompat.getTranslationX(prevSelected.getSwipeView())) > 0
           || Math.abs(ViewCompat.getTranslationY(prevSelected.getSwipeView())) > 0)) {
-        ViewCompat.animate(prevSelected.getSwipeView())
-            .translationX(0)
-            .translationY(0)
-            .setDuration(callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, 0, 0))
-            .start();
-        prevSelected = null;
+        closePreviousSelected();
       }
     }
   };
@@ -425,16 +420,8 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
     // close the previously selected view holder if we're swiping a new one
     if (selected != null && prevSelected != null && selected != prevSelected) {
-      final View swipeView = prevSelected.getSwipeView();
-      final RecoverAnimation rv =
-          new RecoverAnimation(prevSelected, 0, ViewCompat.getTranslationX(swipeView),
-              ViewCompat.getTranslationY(swipeView), 0, 0);
-      final long duration = callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, 0, 0);
-      rv.setDuration(duration);
-      recoverAnimations.add(rv);
-      rv.start();
+      closePreviousSelected();
       preventLayout = true;
-      prevSelected = null;
     }
 
     if (this.selected != null) {
@@ -558,6 +545,25 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
         recoverAnimations.remove(i);
       }
     }
+  }
+
+  /**
+   * Closes the previously selected swiped view, used when scrolling or opening a different swipe
+   * view
+   */
+  private void closePreviousSelected() {
+    final View swipeView = prevSelected.getSwipeView();
+    final float translationX = ViewCompat.getTranslationX(swipeView);
+    final float translationY = ViewCompat.getTranslationY(swipeView);
+    final RecoverAnimation rv =
+        new RecoverAnimation(prevSelected, 0, translationX, translationY, 0, 0);
+    final long duration =
+        callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, translationX,
+            translationY);
+    rv.setDuration(duration);
+    recoverAnimations.add(rv);
+    rv.start();
+    prevSelected = null;
   }
 
   @Override public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
