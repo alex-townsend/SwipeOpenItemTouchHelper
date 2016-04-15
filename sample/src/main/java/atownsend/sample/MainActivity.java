@@ -10,9 +10,13 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import atownsend.swipeopenhelper.SwipeOpenItemTouchHelper;
 
+/**
+ * Example activity that displays the use of state saving/restoration, as well as disabling closeOnAction
+ */
 public class MainActivity extends AppCompatActivity implements TestAdapter.ButtonCallbacks {
 
   private TestAdapter adapter;
+  private SwipeOpenItemTouchHelper helper;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -22,13 +26,22 @@ public class MainActivity extends AppCompatActivity implements TestAdapter.Butto
 
     final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
     adapter = new TestAdapter(this, false, this);
-    SwipeOpenItemTouchHelper helper = new SwipeOpenItemTouchHelper(new SwipeOpenItemTouchHelper.SimpleCallback(
+    helper = new SwipeOpenItemTouchHelper(new SwipeOpenItemTouchHelper.SimpleCallback(
         SwipeOpenItemTouchHelper.START | SwipeOpenItemTouchHelper.END));
 
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
     recyclerView.setAdapter(adapter);
     helper.attachToRecyclerView(recyclerView);
+    helper.setCloseOnAction(false);
 
+    if (savedInstanceState != null) {
+      helper.restoreInstanceState(savedInstanceState);
+    }
+  }
+
+  @Override protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    helper.onSaveInstanceState(outState);
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
