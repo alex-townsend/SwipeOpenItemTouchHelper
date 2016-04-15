@@ -916,6 +916,9 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   public void restoreInstanceState(Bundle savedInstanceState) {
     openedPositions = savedInstanceState.getSparseParcelableArray(OPENED_STATES);
+    if (openedPositions == null) {
+      openedPositions = new SparseArray<>();
+    }
   }
 
   /**
