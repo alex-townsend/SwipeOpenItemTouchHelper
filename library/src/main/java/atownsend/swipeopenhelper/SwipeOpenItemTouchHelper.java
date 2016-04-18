@@ -201,16 +201,18 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   private SparseArray<SavedOpenState> openedPositions = new SparseArray<>();
 
   /**
-   * Data Observer that allow us to remove any opened positions when something is removed from the adapter
+   * Data Observer that allow us to remove any opened positions when something is removed from the
+   * adapter
    */
-  private final RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
-    @Override public void onItemRangeRemoved(int positionStart, int itemCount) {
-      // if an item is removed, we need to remove the opened position
-      for (int i = positionStart; i < positionStart + itemCount; i++) {
-        openedPositions.remove(i);
-      }
-    }
-  };
+  private final RecyclerView.AdapterDataObserver adapterDataObserver =
+      new RecyclerView.AdapterDataObserver() {
+        @Override public void onItemRangeRemoved(int positionStart, int itemCount) {
+          // if an item is removed, we need to remove the opened position
+          for (int i = positionStart; i < positionStart + itemCount; i++) {
+            openedPositions.remove(i);
+          }
+        }
+      };
 
   private final RecyclerView.OnItemTouchListener mOnItemTouchListener =
       new RecyclerView.OnItemTouchListener() {
@@ -316,10 +318,27 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
     @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-      if (closeOnAction && prevSelected != null && (dx != 0 || dy != 0) && (Math.abs(
-          ViewCompat.getTranslationX(prevSelected.getSwipeView())) > 0
-          || Math.abs(ViewCompat.getTranslationY(prevSelected.getSwipeView())) > 0)) {
-        closePreviousSelected();
+      if (closeOnAction && (dx != 0 || dy != 0)) {
+        if (prevSelected != null && (Math.abs(
+            ViewCompat.getTranslationX(prevSelected.getSwipeView())) > 0
+            || Math.abs(ViewCompat.getTranslationY(prevSelected.getSwipeView())) > 0)) {
+          closeOpenHolder(prevSelected);
+          prevSelected = null;
+        }
+        // if we've got any open positions saved from a rotation, close those
+        if (openedPositions.size() > 0) {
+          for (int i = 0; i < openedPositions.size(); i++) {
+            View child = recyclerView.getChildAt(openedPositions.keyAt(0));
+            // view needs to be attached, otherwise we can just mark it has removed since it's not visible
+            if (child != null && child.getParent() != null) {
+              RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
+              if (holder instanceof SwipeOpenViewHolder) {
+                closeOpenHolder((SwipeOpenViewHolder) holder);
+              }
+            }
+            openedPositions.removeAt(i);
+          }
+        }
       }
     }
   };
@@ -389,8 +408,9 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     Resources resources = recyclerView.getContext().getResources();
     isRtl = resources.getBoolean(R.bool.rtl_enabled);
     if (recyclerView.getAdapter() == null) {
-      throw new IllegalStateException("SwipeOpenItemTouchHelper.attachToRecyclerView must be called after "
-          + "the RecyclerView's adapter has been set.");
+      throw new IllegalStateException(
+          "SwipeOpenItemTouchHelper.attachToRecyclerView must be called after "
+              + "the RecyclerView's adapter has been set.");
     } else {
       recyclerView.getAdapter().registerAdapterDataObserver(adapterDataObserver);
     }
@@ -469,8 +489,27 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
     // close the previously selected view holder if we're swiping a new one and the flag is true
     if (closeOnAction && selected != null && prevSelected != null && selected != prevSelected) {
-      closePreviousSelected();
+      closeOpenHolder(prevSelected);
+      prevSelected = null;
       preventLayout = true;
+    }
+
+    // if we've got any opened positions, and closeOnAction is true, close them
+    // NOTE: only real way for this to happen is to have a view opened during configuration change
+    // that then has its' state saved
+    if (closeOnAction && openedPositions.size() > 0) {
+      for (int i = 0; i < openedPositions.size(); i++) {
+        View child = recyclerView.getChildAt(openedPositions.keyAt(0));
+        if (child.getParent() != null) {
+          RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
+          // if our selected isn't the opened position, close it
+          if (holder instanceof SwipeOpenViewHolder && (selected == null
+              || holder.getAdapterPosition() != selected.getViewHolder().getAdapterPosition())) {
+            closeOpenHolder((SwipeOpenViewHolder) holder);
+          }
+        }
+        openedPositions.removeAt(i);
+      }
     }
 
     if (this.selected != null) {
@@ -537,6 +576,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
             targetTranslateX = 0;
             targetTranslateY = 0;
         }
+        // if state == null, we're closing it
         if (state == null) {
           openedPositions.remove(prevSelected.getViewHolder().getAdapterPosition());
         } else {
@@ -608,7 +648,6 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
             state == SavedOpenState.START_OPEN ? swipeHolder.getStartHiddenViewSize()
                 : swipeHolder.getEndHiddenViewSize() * -1);
       }
-
     }
   }
 
@@ -652,22 +691,23 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   }
 
   /**
-   * Closes the previously selected swiped view, used when scrolling or opening a different swipe
-   * view
+   * Closes a SwipeOpenHolder that has been previously opened
+   *
+   * @param holder the holder
    */
-  private void closePreviousSelected() {
-    final View swipeView = prevSelected.getSwipeView();
+  private void closeOpenHolder(SwipeOpenViewHolder holder) {
+    final View swipeView = holder.getSwipeView();
     final float translationX = ViewCompat.getTranslationX(swipeView);
     final float translationY = ViewCompat.getTranslationY(swipeView);
-    final RecoverAnimation rv =
-        new RecoverAnimation(prevSelected, 0, translationX, translationY, 0, 0);
+    final RecoverAnimation rv = new RecoverAnimation(holder, 0, translationX, translationY, 0, 0);
     final long duration =
         callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, translationX,
             translationY);
     rv.setDuration(duration);
     recoverAnimations.add(rv);
     rv.start();
-    prevSelected = null;
+    // remove it from our open positions if we've got it
+    openedPositions.remove(holder.getViewHolder().getAdapterPosition());
   }
 
   @Override public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
