@@ -9,11 +9,34 @@ android {
 
   defaultConfig {
     minSdkVersion 11
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  sourceSets {
+    androidTest {
+      java.srcDirs = ['src/androidTest/java']
+      resources.srcDirs = ['src/androidTest/res']
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
+
+  packagingOptions {
+    exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+    exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
   }
 }
 
 dependencies {
   compile 'com.android.support:recyclerview-v7:23.2.1'
+
+  androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+  androidTestCompile 'com.android.support.test:runner:0.5'
+  androidTestCompile 'com.android.support.test:rules:0.5'
+  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+  androidTestCompile 'com.google.truth:truth:0.27'
 }
 
 
