@@ -328,13 +328,10 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
         // if we've got any open positions saved from a rotation, close those
         if (openedPositions.size() > 0) {
           for (int i = 0; i < openedPositions.size(); i++) {
-            View child = recyclerView.getChildAt(openedPositions.keyAt(0));
-            // view needs to be attached, otherwise we can just mark it has removed since it's not visible
-            if (child != null && child.getParent() != null) {
-              RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
-              if (holder instanceof SwipeOpenViewHolder) {
-                closeOpenHolder((SwipeOpenViewHolder) holder);
-              }
+            RecyclerView.ViewHolder holder =
+                recyclerView.findViewHolderForAdapterPosition(openedPositions.keyAt(i));
+            if (holder instanceof SwipeOpenViewHolder) {
+              closeOpenHolder((SwipeOpenViewHolder) holder);
             }
             openedPositions.removeAt(i);
           }
@@ -499,14 +496,12 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     // that then has its' state saved
     if (closeOnAction && openedPositions.size() > 0) {
       for (int i = 0; i < openedPositions.size(); i++) {
-        View child = recyclerView.getChildAt(openedPositions.keyAt(0));
-        if (child.getParent() != null) {
-          RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
-          // if our selected isn't the opened position, close it
-          if (holder instanceof SwipeOpenViewHolder && (selected == null
-              || holder.getAdapterPosition() != selected.getViewHolder().getAdapterPosition())) {
-            closeOpenHolder((SwipeOpenViewHolder) holder);
-          }
+        RecyclerView.ViewHolder holder =
+            recyclerView.findViewHolderForAdapterPosition(openedPositions.keyAt(i));
+        // if our selected isn't the opened position, close it
+        if (holder instanceof SwipeOpenViewHolder && (selected == null
+            || holder.getAdapterPosition() != selected.getViewHolder().getAdapterPosition())) {
+          closeOpenHolder((SwipeOpenViewHolder) holder);
         }
         openedPositions.removeAt(i);
       }
