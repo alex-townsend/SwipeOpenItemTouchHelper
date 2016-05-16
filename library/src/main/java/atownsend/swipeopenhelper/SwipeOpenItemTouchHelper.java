@@ -163,7 +163,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   /**
    * The direction flags obtained from unmasking
-   * {@link Callback#getAbsoluteMovementFlags(RecyclerView, RecyclerView.ViewHolder)} for the
+   * {@link Callback#getAbsMovementFlags(RecyclerView, RecyclerView.ViewHolder)} for the
    * current
    * action state.
    */
@@ -593,7 +593,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       this.selected = null;
     }
     if (selected != null) {
-      selectedFlags = (callback.getAbsoluteMovementFlags(recyclerView, selected.getViewHolder())
+      selectedFlags = (callback.getAbsMovementFlags(recyclerView, selected.getViewHolder())
           & actionStateMask) >> (this.actionState * DIRECTION_FLAG_COUNT);
       selectedStartX = selected.getViewHolder().itemView.getLeft() + ViewCompat.getTranslationX(
           selected.getSwipeView());
@@ -770,7 +770,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       return false;
     }
 
-    final int movementFlags = callback.getAbsoluteMovementFlags(recyclerView, vh);
+    final int movementFlags = callback.getAbsMovementFlags(recyclerView, vh);
 
     final int swipeFlags =
         (movementFlags & ACTION_MODE_SWIPE_MASK) >> (DIRECTION_FLAG_COUNT * ACTION_STATE_SWIPE);
@@ -986,7 +986,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       return makeFlag(ACTION_STATE_IDLE, swipeFlags) | makeFlag(ACTION_STATE_SWIPE, swipeFlags);
     }
 
-    final int getAbsoluteMovementFlags(RecyclerView recyclerView,
+    final int getAbsMovementFlags(RecyclerView recyclerView,
         RecyclerView.ViewHolder viewHolder) {
       final int flags = getMovementFlags(recyclerView, viewHolder);
       return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView));
