@@ -185,6 +185,14 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   private boolean isRtl;
 
   /**
+   * Flag for if a the SwipeOpenItemTouchHelper should prevent swipe-to-opens of Start or End Views
+   * that
+   * have a size of 0
+   * DEFAULT: false
+   */
+  private boolean preventZeroSizeViewSwipes = false;
+
+  /**
    * Flag for if any open SwipeOpenViewHolders should be close when the view is scrolled or if
    * a new view holder is swiped
    * DEFAULT: true
@@ -395,6 +403,15 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     this.closeOnAction = closeOnAction;
   }
 
+  /**
+   * Flag to prevent SwipeOpenItemTouchHelper from swiping open zero-sized Start or End views.
+   *
+   * @param preventZeroSizeViewSwipes true to prevent swiping open zero sized views, false to allow
+   */
+  public void setPreventZeroSizeViewSwipes(boolean preventZeroSizeViewSwipes) {
+    this.preventZeroSizeViewSwipes = preventZeroSizeViewSwipes;
+  }
+
   private void setupCallbacks() {
     ViewConfiguration vc = ViewConfiguration.get(recyclerView.getContext());
     slop = vc.getScaledTouchSlop();
@@ -463,7 +480,43 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       dx = tmpPosition[0];
       dy = tmpPosition[1];
     }
+
+    // checks if we need to prevent zero-size swipe-to-opens
+    if (selected != null && preventZeroSizeViewSwipes) {
+      if (preventHorizontalAction(selected, dx)) {
+        dx = 0;
+      } else if (preventVerticalAction(selected, dy)) {
+        dy = 0;
+      }
+    }
     callback.onDraw(c, parent, selected, recoverAnimations, actionState, dx, dy, isRtl);
+  }
+
+  /**
+   * Checks if we need to prevent a horizontal swipe action for a view holder -- this is used when
+   * we have preventZeroSizeViewSwipes set to true and we need to check if we're preventing a zero-size swipe
+   * @param holder the view holder
+   * @param translationX the new translation x of the holder
+   * @return true if we need to prevent the action, false if not
+   */
+  private boolean preventHorizontalAction(final SwipeOpenViewHolder holder, final float translationX) {
+    if (translationX > 0f && ((!isRtl && holder.getStartHiddenViewSize() == 0f) ^ (isRtl
+        && holder.getEndHiddenViewSize() == 0f))) {
+      return true;
+    } else if (translationX < 0f && ((!isRtl && holder.getEndHiddenViewSize() == 0f) ^ (isRtl
+        && holder.getStartHiddenViewSize() == 0f))) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean preventVerticalAction(final SwipeOpenViewHolder holder, final float dy) {
+    if (dy > 0f && holder.getStartHiddenViewSize() == 0f) {
+      return true;
+    } else if (dy < 0f && holder.getEndHiddenViewSize() == 0f) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -519,82 +572,90 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
         final float currentTranslateX = tmpPosition[0];
         final float currentTranslateY = tmpPosition[1];
-        final float absTranslateX = Math.abs(currentTranslateX);
-        final float absTranslateY = Math.abs(currentTranslateY);
-        final SavedOpenState state;
-        switch (swipeDir) {
-          case LEFT:
-          case START:
-            targetTranslateY = 0;
-            // check if we need to close or go to the open position
-            if (absTranslateX > prevSelected.getEndHiddenViewSize() / 2) {
-              targetTranslateX = prevSelected.getEndHiddenViewSize() * Math.signum(dX);
-              state = SavedOpenState.END_OPEN;
-            } else {
-              targetTranslateX = 0;
-              state = null;
-            }
-            break;
-          case RIGHT:
-          case END:
-            targetTranslateY = 0;
-            if (absTranslateX > prevSelected.getStartHiddenViewSize() / 2) {
-              targetTranslateX = prevSelected.getStartHiddenViewSize() * Math.signum(dX);
-              state = SavedOpenState.START_OPEN;
-            } else {
-              targetTranslateX = 0;
-              state = null;
-            }
-            break;
-          case UP:
-            targetTranslateX = 0;
-            if (absTranslateY > prevSelected.getEndHiddenViewSize() / 2) {
-              targetTranslateY = prevSelected.getEndHiddenViewSize() * Math.signum(dY);
-              state = SavedOpenState.END_OPEN;
-            } else {
+        // only need to check if we need a recover animation for non-zero translation views
+        if (ViewCompat.getTranslationX(prevSelected.getSwipeView()) != 0
+            || ViewCompat.getTranslationY(prevSelected.getSwipeView()) != 0) {
+          final float absTranslateX = Math.abs(currentTranslateX);
+          final float absTranslateY = Math.abs(currentTranslateY);
+          final SavedOpenState state;
+          switch (swipeDir) {
+            case LEFT:
+            case START:
               targetTranslateY = 0;
-              state = null;
-            }
-            break;
-          case DOWN:
-            targetTranslateX = 0;
-            if (absTranslateY > prevSelected.getStartHiddenViewSize() / 2) {
-              targetTranslateY = prevSelected.getStartHiddenViewSize() * Math.signum(dY);
-              state = SavedOpenState.START_OPEN;
-            } else {
+              // check if we need to close or go to the open position
+              if (absTranslateX > prevSelected.getEndHiddenViewSize() / 2) {
+                targetTranslateX = prevSelected.getEndHiddenViewSize() * Math.signum(dX);
+                state = SavedOpenState.END_OPEN;
+              } else {
+                targetTranslateX = 0;
+                state = null;
+              }
+              break;
+            case RIGHT:
+            case END:
               targetTranslateY = 0;
+              if (absTranslateX > prevSelected.getStartHiddenViewSize() / 2) {
+                targetTranslateX = prevSelected.getStartHiddenViewSize() * Math.signum(dX);
+                state = SavedOpenState.START_OPEN;
+              } else {
+                targetTranslateX = 0;
+                state = null;
+              }
+              break;
+            case UP:
+              targetTranslateX = 0;
+              if (absTranslateY > prevSelected.getEndHiddenViewSize() / 2) {
+                targetTranslateY = prevSelected.getEndHiddenViewSize() * Math.signum(dY);
+                state = SavedOpenState.END_OPEN;
+              } else {
+                targetTranslateY = 0;
+                state = null;
+              }
+              break;
+            case DOWN:
+              targetTranslateX = 0;
+              if (absTranslateY > prevSelected.getStartHiddenViewSize() / 2) {
+                targetTranslateY = prevSelected.getStartHiddenViewSize() * Math.signum(dY);
+                state = SavedOpenState.START_OPEN;
+              } else {
+                targetTranslateY = 0;
+                state = null;
+              }
+              break;
+            default:
               state = null;
-            }
-            break;
-          default:
-            state = null;
-            targetTranslateX = 0;
-            targetTranslateY = 0;
-        }
-        // if state == null, we're closing it
-        if (state == null) {
-          openedPositions.remove(prevSelected.getViewHolder().getAdapterPosition());
-        } else {
-          openedPositions.put(prevSelected.getViewHolder().getAdapterPosition(), state);
-        }
+              targetTranslateX = 0;
+              targetTranslateY = 0;
+          }
+          // if state == null, we're closing it
+          if (state == null) {
+            openedPositions.remove(prevSelected.getViewHolder().getAdapterPosition());
+          } else {
+            openedPositions.put(prevSelected.getViewHolder().getAdapterPosition(), state);
+          }
 
-        final RecoverAnimation rv =
-            new RecoverAnimation(prevSelected, prevActionState, currentTranslateX,
-                currentTranslateY, targetTranslateX, targetTranslateY);
-        final long duration = callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE,
-            targetTranslateX - currentTranslateX, targetTranslateY - currentTranslateY);
-        rv.setDuration(duration);
-        recoverAnimations.add(rv);
-        rv.start();
-        preventLayout = true;
+          final RecoverAnimation rv =
+              new RecoverAnimation(prevSelected, prevActionState, currentTranslateX,
+                  currentTranslateY, targetTranslateX, targetTranslateY);
+          final long duration = callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE,
+              targetTranslateX - currentTranslateX, targetTranslateY - currentTranslateY);
+          rv.setDuration(duration);
+          recoverAnimations.add(rv);
+          rv.start();
+          preventLayout = true;
+        } else {
+          // if both translations are 0, it's closed
+          openedPositions.remove(prevSelected.getViewHolder().getAdapterPosition());
+        }
       } else {
         callback.clearView(recyclerView, prevSelected);
       }
       this.selected = null;
     }
     if (selected != null) {
-      selectedFlags = (callback.getAbsMovementFlags(recyclerView, selected.getViewHolder())
-          & actionStateMask) >> (this.actionState * DIRECTION_FLAG_COUNT);
+      selectedFlags =
+          (callback.getAbsMovementFlags(recyclerView, selected.getViewHolder()) & actionStateMask)
+              >> (this.actionState * DIRECTION_FLAG_COUNT);
       selectedStartX = selected.getViewHolder().itemView.getLeft() + ViewCompat.getTranslationX(
           selected.getSwipeView());
       selectedStartY = selected.getViewHolder().itemView.getTop() + ViewCompat.getTranslationY(
@@ -986,8 +1047,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       return makeFlag(ACTION_STATE_IDLE, swipeFlags) | makeFlag(ACTION_STATE_SWIPE, swipeFlags);
     }
 
-    final int getAbsMovementFlags(RecyclerView recyclerView,
-        RecyclerView.ViewHolder viewHolder) {
+    final int getAbsMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
       final int flags = getMovementFlags(recyclerView, viewHolder);
       return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView));
     }
