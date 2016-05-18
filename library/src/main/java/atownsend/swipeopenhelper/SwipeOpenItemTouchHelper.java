@@ -757,6 +757,43 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   }
 
   /**
+   * Closes the given SwipeOpenViewHolder at the given position if there is one.
+   * If the position is not currently attached to the RecyclerView (e.g. off-screen), then
+   * the opened position will just be removed and the holder will appear in a closed position
+   * when it is next created/bound.
+   * @param position the position to close
+   */
+  public void closeOpenPosition(final int position) {
+    if (recyclerView == null) {
+      return;
+    }
+    RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(position);
+    if (holder instanceof SwipeOpenViewHolder) {
+      // check that the view holder is attached to a parent
+      if (((SwipeOpenViewHolder) holder).getViewHolder().itemView.getParent() != null) {
+        closeOpenHolder((SwipeOpenViewHolder) holder);
+        recyclerView.invalidate();
+      }
+    }
+    // remove the position if we have not already
+    openedPositions.remove(position);
+  }
+
+  /**
+   * Closes all currently opened SwipeOpenViewHolders for the currently attached RecyclerView
+   */
+  public void closeAllOpenPositions() {
+    if (recyclerView == null) {
+      return;
+    }
+    for (int i = openedPositions.size() - 1; i >= 0; i--) {
+      closeOpenPosition(openedPositions.keyAt(i));
+    }
+    // remove all positions in case one was not removed
+    openedPositions.clear();
+  }
+
+  /**
    * Closes a SwipeOpenHolder that has been previously opened
    *
    * @param holder the holder
