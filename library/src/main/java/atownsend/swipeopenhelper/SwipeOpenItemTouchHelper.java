@@ -214,6 +214,13 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
    */
   private final RecyclerView.AdapterDataObserver adapterDataObserver =
       new RecyclerView.AdapterDataObserver() {
+
+        @Override public void onChanged() {
+          // if notifyDataSetChanged is used we cannot know if opened holders should stay open,
+          // so close all of them
+          openedPositions.clear();
+        }
+
         @Override public void onItemRangeRemoved(int positionStart, int itemCount) {
           // if an item is removed, we need to remove the opened position
           for (int i = positionStart; i < positionStart + itemCount; i++) {
@@ -494,12 +501,15 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   /**
    * Checks if we need to prevent a horizontal swipe action for a view holder -- this is used when
-   * we have preventZeroSizeViewSwipes set to true and we need to check if we're preventing a zero-size swipe
+   * we have preventZeroSizeViewSwipes set to true and we need to check if we're preventing a
+   * zero-size swipe
+   *
    * @param holder the view holder
    * @param translationX the new translation x of the holder
    * @return true if we need to prevent the action, false if not
    */
-  private boolean preventHorizontalAction(final SwipeOpenViewHolder holder, final float translationX) {
+  private boolean preventHorizontalAction(final SwipeOpenViewHolder holder,
+      final float translationX) {
     if (translationX > 0f && ((!isRtl && holder.getStartHiddenViewSize() == 0f) ^ (isRtl
         && holder.getEndHiddenViewSize() == 0f))) {
       return true;
