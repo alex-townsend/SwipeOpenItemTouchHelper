@@ -96,6 +96,49 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
     onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
   }
 
+  @Test public void closePositionsTest() {
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.setCloseOnAction(false);
+      }
+    });
+    // open positions 1 and 2
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeLeft()));
+
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.closeOpenPosition(1);
+        helper.closeOpenPosition(2);
+      }
+    });
+
+    // both positions should be closed
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+  }
+
+  @Test public void closeAllPositionsTest() {
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.setCloseOnAction(false);
+      }
+    });
+    // open positions 1 and 2
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeLeft()));
+
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.closeAllOpenPositions();
+      }
+    });
+
+    // both positions should be closed
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+  }
+
   /**
    * Uses a slow swipe to simulate a scroll
    * @return the view action
