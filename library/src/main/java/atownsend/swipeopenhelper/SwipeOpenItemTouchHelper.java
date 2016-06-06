@@ -859,7 +859,6 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     if (holder instanceof SwipeOpenViewHolder) {
       return holder;
     }
-    Log.w(TAG, "View Holders must implement SwipeOpenViewHolder to handle swipe-to-open.");
     return null;
   }
 
