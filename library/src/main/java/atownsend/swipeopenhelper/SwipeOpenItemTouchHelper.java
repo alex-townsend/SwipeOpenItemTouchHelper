@@ -857,10 +857,9 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     }
     RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
     if (holder instanceof SwipeOpenViewHolder) {
-      return recyclerView.getChildViewHolder(child);
-    } else {
-      throw new IllegalStateException("Swiped View Holders must implement SwipeOpenViewHolder");
+      return holder;
     }
+    return null;
   }
 
   /**
@@ -874,7 +873,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       return false;
     }
     final RecyclerView.ViewHolder vh = findSwipedView(motionEvent);
-    if (vh == null || !(vh instanceof SwipeOpenViewHolder)) {
+    if (vh == null) {
       return false;
     }
 
