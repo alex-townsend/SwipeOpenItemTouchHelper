@@ -47,6 +47,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
   @Before public void setup() {
     SwipeOpenItemTouchHelperTestActivity activity = activityRule.getActivity();
+    // reset the orientation to portrait -- seems to prevent tests from failing after the state saving test
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     helper = activity.helper;
   }
 
@@ -152,8 +154,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
    * Rotates the screen of the test activity
    */
   private void rotateScreen() {
-    Context context = InstrumentationRegistry.getTargetContext();
-    int orientation = context.getResources().getConfiguration().orientation;
+    final Context context = InstrumentationRegistry.getTargetContext();
+    final int orientation = context.getResources().getConfiguration().orientation;
 
     Activity activity = activityRule.getActivity();
     activity.setRequestedOrientation((orientation == Configuration.ORIENTATION_PORTRAIT)
