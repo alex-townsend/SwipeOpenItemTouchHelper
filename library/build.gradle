@@ -5,7 +5,7 @@ group = 'com.github.alex-townsend'
 
 android {
   compileSdkVersion 24
-  buildToolsVersion "24.0.1"
+  buildToolsVersion "24.0.2"
 
   defaultConfig {
     minSdkVersion 11
@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-  compile 'com.android.support:recyclerview-v7:24.1.1'
+  compile 'com.android.support:recyclerview-v7:24.2.0'
 
   androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
   androidTestCompile 'com.android.support.test:runner:0.5'
