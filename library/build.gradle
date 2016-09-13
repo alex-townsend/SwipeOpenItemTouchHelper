@@ -35,7 +35,9 @@ dependencies {
   androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
   androidTestCompile 'com.android.support.test:runner:0.5'
   androidTestCompile 'com.android.support.test:rules:0.5'
-  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+  androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.2') {
+    exclude module: 'support-v4'
+  }
   androidTestCompile 'com.google.truth:truth:0.27'
 }
 
