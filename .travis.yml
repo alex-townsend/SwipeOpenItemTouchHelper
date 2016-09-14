@@ -4,7 +4,7 @@ android:
   components:
     - tools
     - platform-tools
-    - build-tools-24.0.1
+    - build-tools-24.0.2
     - android-24
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-18
@@ -19,4 +19,8 @@ before_script:
   - adb shell input keyevent 82
 
 script:
- - ./gradlew build connectedCheck
+ - ./gradlew :library:build :library:connectedCheck
+
+cache:
+  directories:
+    - $HOME/.gradle
