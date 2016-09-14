@@ -20,3 +20,7 @@ before_script:
 
 script:
  - ./gradlew :library:build :library:connectedCheck
+
+cache:
+  directories:
+    - $HOME/.gradle

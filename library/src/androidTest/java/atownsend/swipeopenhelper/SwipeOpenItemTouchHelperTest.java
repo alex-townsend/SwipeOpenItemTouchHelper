@@ -12,7 +12,6 @@ import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -55,11 +54,11 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
   @Test public void swipeCloseOnActionTest() {
 
     // swipe open position 1
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
     onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
 
     // swipe open position 3
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, ViewActions.swipeLeft()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, swipeLeft()));
 
     // position 1 should have closed, and position 3 should be open
     onView(withId(R.id.test_recycler)).check(matches(atPosition(3, checkTranslationX(false))));
@@ -69,7 +68,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
   @Test public void scrollCloseOnActionTest() {
 
     // swipe open position 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeRight()));
     onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(true))));
 
     // scroll on position 3
@@ -87,8 +86,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
     });
 
     // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeLeft()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
 
     // rotate the screen
     rotateScreen();
@@ -105,8 +104,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
       }
     });
     // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeLeft()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
 
     instrumentation.runOnMainSync(new Runnable() {
       @Override public void run() {
@@ -127,8 +126,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
       }
     });
     // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, ViewActions.swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, ViewActions.swipeLeft()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
 
     instrumentation.runOnMainSync(new Runnable() {
       @Override public void run() {
@@ -226,5 +225,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
           return ViewCompat.getTranslationX(item) == 0 && ViewCompat.getTranslationY(item) == 0;
       }
     };
+  }
+
+  private static ViewAction swipeRight() {
+    return new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
+        GeneralLocation.CENTER_RIGHT, Press.FINGER);
+  }
+
+  private static ViewAction swipeLeft() {
+    return new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
+        GeneralLocation.CENTER_LEFT, Press.FINGER);
   }
 }
