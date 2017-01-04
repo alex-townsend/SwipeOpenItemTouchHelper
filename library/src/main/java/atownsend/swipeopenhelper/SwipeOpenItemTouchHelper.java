@@ -245,10 +245,10 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
             if (selected == null) {
               final RecoverAnimation animation = findAnimation(event);
               if (animation != null) {
-                initialTouchX -= animation.mX;
-                initialTouchY -= animation.mY;
-                endRecoverAnimation(animation.mViewHolder, true);
-                select(animation.mViewHolder, animation.mActionState);
+                initialTouchX -= animation.x;
+                initialTouchY -= animation.y;
+                endRecoverAnimation(animation.viewHolder);
+                select(animation.viewHolder, animation.actionState);
                 updateDxDy(event, selectedFlags, 0);
               }
             }
@@ -449,7 +449,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     final int recoverAnimSize = recoverAnimations.size();
     for (int i = recoverAnimSize - 1; i >= 0; i--) {
       final RecoverAnimation recoverAnimation = recoverAnimations.get(0);
-      callback.clearView(recyclerView, recoverAnimation.mViewHolder);
+      callback.clearView(recyclerView, recoverAnimation.viewHolder);
     }
     recoverAnimations.clear();
     releaseVelocityTracker();
@@ -542,7 +542,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     }
     final int prevActionState = this.actionState;
     // prevent duplicate animations
-    endRecoverAnimation(selected, true);
+    endRecoverAnimation(selected);
     this.actionState = actionState;
     int actionStateMask = (1 << (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState)) - 1;
     boolean preventLayout = false;
@@ -738,17 +738,16 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       select(null, ACTION_STATE_IDLE);
     } else {
       callback.clearView(recyclerView, swipeHolder);
-      endRecoverAnimation(swipeHolder, false); // this may push it into pending cleanup list.
+      endRecoverAnimation(swipeHolder);
     }
   }
 
-  private void endRecoverAnimation(SwipeOpenViewHolder viewHolder, boolean override) {
+  private void endRecoverAnimation(SwipeOpenViewHolder viewHolder) {
     final int recoverAnimSize = recoverAnimations.size();
     for (int i = recoverAnimSize - 1; i >= 0; i--) {
       final RecoverAnimation anim = recoverAnimations.get(i);
-      if (anim.mViewHolder == viewHolder) {
-        anim.mOverridden |= override;
-        if (!anim.mEnded) {
+      if (anim.viewHolder == viewHolder) {
+        if (!anim.ended) {
           anim.cancel();
         }
         recoverAnimations.remove(i);
@@ -788,7 +787,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       // check that the view holder is attached to a parent
       if (((SwipeOpenViewHolder) holder).getViewHolder().itemView.getParent() != null) {
         // end any current animations for the view holder
-        endRecoverAnimation((SwipeOpenViewHolder) holder, true);
+        endRecoverAnimation((SwipeOpenViewHolder) holder);
         openHolder((SwipeOpenViewHolder) holder, direction);
         recyclerView.invalidate();
       }
@@ -814,7 +813,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       // check that the view holder is attached to a parent
       if (((SwipeOpenViewHolder) holder).getViewHolder().itemView.getParent() != null) {
         // end any current animations for the view holder
-        endRecoverAnimation((SwipeOpenViewHolder) holder, true);
+        endRecoverAnimation((SwipeOpenViewHolder) holder);
         closeOpenHolder((SwipeOpenViewHolder) holder);
         recyclerView.invalidate();
       }
@@ -1013,8 +1012,8 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     }
     for (int i = recoverAnimations.size() - 1; i >= 0; i--) {
       final RecoverAnimation anim = recoverAnimations.get(i);
-      final View view = anim.mViewHolder.getViewHolder().itemView;
-      if (hitTest(view, x, y, anim.mX, anim.mY)) {
+      final View view = anim.viewHolder.getViewHolder().itemView;
+      if (hitTest(view, x, y, anim.x, anim.y)) {
         return view;
       }
     }
@@ -1046,7 +1045,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     View target = findChildView(event);
     for (int i = recoverAnimations.size() - 1; i >= 0; i--) {
       final RecoverAnimation anim = recoverAnimations.get(i);
-      if (anim.mViewHolder.getViewHolder().itemView == target) {
+      if (anim.viewHolder.getViewHolder().itemView == target) {
         return anim;
       }
     }
@@ -1201,7 +1200,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
         final SwipeOpenItemTouchHelper.RecoverAnimation anim = recoverAnimationList.get(i);
         anim.update();
         final int count = c.save();
-        onChildDraw(c, parent, anim.mViewHolder, anim.mX, anim.mY, false);
+        onChildDraw(c, parent, anim.viewHolder, anim.x, anim.y, false);
         c.restoreToCount(count);
       }
       if (selected != null) {
@@ -1252,9 +1251,9 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       boolean hasRunningAnimation = false;
       for (int i = recoverAnimSize - 1; i >= 0; i--) {
         final RecoverAnimation anim = recoverAnimationList.get(i);
-        if (anim.mEnded && !anim.mIsPendingCleanup) {
+        if (anim.ended) {
           recoverAnimationList.remove(i);
-        } else if (!anim.mEnded) {
+        } else {
           hasRunningAnimation = true;
         }
       }
@@ -1313,68 +1312,62 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
 
   private class RecoverAnimation implements AnimatorListenerCompat {
 
-    final float mStartDx;
+    final float startDx;
 
-    final float mStartDy;
+    final float startDy;
 
-    final float mTargetX;
+    final float targetX;
 
-    final float mTargetY;
+    final float targetY;
 
-    final SwipeOpenViewHolder mViewHolder;
+    final SwipeOpenViewHolder viewHolder;
 
-    final int mActionState;
+    final int actionState;
 
-    private final ValueAnimatorCompat mValueAnimator;
+    private final ValueAnimatorCompat valueAnimator;
 
-    public boolean mIsPendingCleanup;
+    float x;
 
-    float mX;
+    float y;
 
-    float mY;
+    private boolean ended = false;
 
-    // if user starts touching a recovering view, we put it into interaction mode again,
-    // instantly.
-    boolean mOverridden = false;
-
-    private boolean mEnded = false;
-
-    private float mFraction;
+    private float fraction;
 
     public RecoverAnimation(SwipeOpenViewHolder viewHolder, int actionState, float startDx,
         float startDy, float targetX, float targetY) {
-      mActionState = actionState;
-      mViewHolder = viewHolder;
-      mStartDx = startDx;
-      mStartDy = startDy;
-      mTargetX = targetX;
-      mTargetY = targetY;
-      mValueAnimator = AnimatorCompatHelper.emptyValueAnimator();
-      mValueAnimator.addUpdateListener(new AnimatorUpdateListenerCompat() {
+      this.actionState = actionState;
+      this.viewHolder = viewHolder;
+      this.startDx = startDx;
+      this.startDy = startDy;
+      this.targetX = targetX;
+      this.targetY = targetY;
+      valueAnimator = AnimatorCompatHelper.emptyValueAnimator();
+      valueAnimator.addUpdateListener(new AnimatorUpdateListenerCompat() {
         @Override public void onAnimationUpdate(ValueAnimatorCompat animation) {
           setFraction(animation.getAnimatedFraction());
         }
       });
-      mValueAnimator.setTarget(viewHolder.getViewHolder().itemView);
-      mValueAnimator.addListener(this);
+      valueAnimator.setTarget(viewHolder.getViewHolder().itemView);
+      valueAnimator.addListener(this);
       setFraction(0f);
     }
 
     public void setDuration(long duration) {
-      mValueAnimator.setDuration(duration);
+      valueAnimator.setDuration(duration);
     }
 
     public void start() {
-      mViewHolder.getViewHolder().setIsRecyclable(false);
-      mValueAnimator.start();
+      viewHolder.getViewHolder().setIsRecyclable(false);
+      valueAnimator.start();
     }
 
     public void cancel() {
-      mValueAnimator.cancel();
+      valueAnimator.cancel();
     }
 
     public void setFraction(float fraction) {
-      mFraction = fraction;
+      this.fraction = fraction;
     }
 
     /**
@@ -1382,15 +1375,15 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
      * This way, we can sync translate x/y values w/ the animators to avoid one-off frames.
      */
     public void update() {
-      if (mStartDx == mTargetX) {
-        mX = ViewCompat.getTranslationX(mViewHolder.getSwipeView());
+      if (startDx == targetX) {
+        x = ViewCompat.getTranslationX(viewHolder.getSwipeView());
       } else {
-        mX = mStartDx + mFraction * (mTargetX - mStartDx);
+        x = startDx + fraction * (targetX - startDx);
       }
-      if (mStartDy == mTargetY) {
-        mY = ViewCompat.getTranslationY(mViewHolder.getSwipeView());
+      if (startDy == targetY) {
+        y = ViewCompat.getTranslationY(viewHolder.getSwipeView());
       } else {
-        mY = mStartDy + mFraction * (mTargetY - mStartDy);
+        y = startDy + fraction * (targetY - startDy);
       }
     }
 
@@ -1399,10 +1392,10 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     @Override public void onAnimationEnd(ValueAnimatorCompat animation) {
-      if (!mEnded) {
-        mViewHolder.getViewHolder().setIsRecyclable(true);
+      if (!ended) {
+        viewHolder.getViewHolder().setIsRecyclable(true);
       }
-      mEnded = true;
+      ended = true;
     }
 
     @Override public void onAnimationCancel(ValueAnimatorCompat animation) {
@@ -1417,7 +1410,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   /**
    * Enum for saving the opened state of the view holders
    */
-  enum SavedOpenState implements Parcelable {
+  private enum SavedOpenState implements Parcelable {
     START_OPEN, END_OPEN;
 
     @Override public int describeContents() {
