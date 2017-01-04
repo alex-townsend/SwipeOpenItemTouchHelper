@@ -140,6 +140,28 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
     onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
   }
 
+  @Test public void openPositionTest() {
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.setCloseOnAction(true);
+        helper.openPositionStart(1);
+      }
+    });
+    instrumentation.waitForIdleSync();
+
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
+
+    instrumentation.runOnMainSync(new Runnable() {
+      @Override public void run() {
+        helper.openPositionEnd(2);
+      }
+    });
+    instrumentation.waitForIdleSync();
+
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
+    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+  }
+
   /**
    * Uses a slow swipe to simulate a scroll
    * @return the view action

@@ -757,10 +757,52 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   }
 
   /**
+   * Opens the position of the START hidden view for a given position
+   *
+   * @param position the position
+   */
+  public void openPositionStart(final int position) {
+    openPosition(position, SavedOpenState.START_OPEN);
+  }
+
+  /**
+   * Opens the position of the END hidden view for a given position
+   *
+   * @param position the position
+   */
+  public void openPositionEnd(final int position) {
+    openPosition(position, SavedOpenState.END_OPEN);
+  }
+
+  private void openPosition(final int position, final SavedOpenState direction) {
+    if (recyclerView == null) {
+      return;
+    }
+    // attempt to close any open positions
+    if (closeOnAction) {
+      closeAllOpenPositions();
+    }
+
+    RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(position);
+    if (holder instanceof SwipeOpenViewHolder) {
+      // check that the view holder is attached to a parent
+      if (((SwipeOpenViewHolder) holder).getViewHolder().itemView.getParent() != null) {
+        // end any current animations for the view holder
+        endRecoverAnimation((SwipeOpenViewHolder) holder, true);
+        openHolder((SwipeOpenViewHolder) holder, direction);
+        recyclerView.invalidate();
+      }
+    }
+    // add open position to our saved positions
+    openedPositions.put(position, direction);
+  }
+
+  /**
    * Closes the given SwipeOpenViewHolder at the given position if there is one.
    * If the position is not currently attached to the RecyclerView (e.g. off-screen), then
    * the opened position will just be removed and the holder will appear in a closed position
    * when it is next created/bound.
+   *
    * @param position the position to close
    */
   public void closeOpenPosition(final int position) {
@@ -771,6 +813,8 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     if (holder instanceof SwipeOpenViewHolder) {
       // check that the view holder is attached to a parent
       if (((SwipeOpenViewHolder) holder).getViewHolder().itemView.getParent() != null) {
+        // end any current animations for the view holder
+        endRecoverAnimation((SwipeOpenViewHolder) holder, true);
         closeOpenHolder((SwipeOpenViewHolder) holder);
         recyclerView.invalidate();
       }
@@ -811,6 +855,40 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
     rv.start();
     // remove it from our open positions if we've got it
     openedPositions.remove(holder.getViewHolder().getAdapterPosition());
+  }
+
+  /**
+   * Opens a SwipeOpenHolder in a given direction
+   *
+   * @param holder the holder
+   * @param direction the direction
+   * @return true if the view was opened, false if not
+   */
+  private void openHolder(SwipeOpenViewHolder holder, SavedOpenState direction) {
+    final View swipeView = holder.getSwipeView();
+    final float translationX = ViewCompat.getTranslationX(swipeView);
+    final float translationY = ViewCompat.getTranslationY(swipeView);
+    final float openSize = direction == SavedOpenState.START_OPEN ? holder.getStartHiddenViewSize()
+        : holder.getEndHiddenViewSize();
+
+    final RecoverAnimation rv;
+    if (recyclerView.getLayoutManager().canScrollVertically()) {
+      int rtlFlipStart = isRtl ? -1 : 1;
+      int rtlFlipEnd = isRtl ? 1 : -1;
+
+      float targetDx =
+          direction == SavedOpenState.START_OPEN ? openSize * rtlFlipStart : openSize * rtlFlipEnd;
+      rv = new RecoverAnimation(holder, 0, translationX, translationY, targetDx, 0);
+    } else {
+      float targetDx = direction == SavedOpenState.START_OPEN ? openSize * -1 : openSize;
+      rv = new RecoverAnimation(holder, 0, translationX, translationY, 0, targetDx);
+    }
+    final long duration =
+        callback.getAnimationDuration(recyclerView, ANIMATION_TYPE_SWIPE, translationX,
+            translationY);
+    rv.setDuration(duration);
+    recoverAnimations.add(rv);
+    rv.start();
   }
 
   @Override public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
