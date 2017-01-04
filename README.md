@@ -61,7 +61,7 @@ allprojects {
 ```
 - Add the dependency
 ```Groovy
-compile 'com.github.alex-townsend:SwipeOpenItemTouchHelper:1.2.2'
+compile 'com.github.alex-townsend:SwipeOpenItemTouchHelper:1.3.0'
 ```
 
 Or, add through Maven:
@@ -80,7 +80,7 @@ Or, add through Maven:
 <dependency>
     <groupId>com.github.alex-townsend</groupId>
     <artifactId>SwipeOpenItemTouchHelper</artifactId>
-    <version>1.2.2</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
