@@ -4,11 +4,11 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.alex-townsend'
 
 android {
-  compileSdkVersion 25
-  buildToolsVersion "25.0.1"
+  compileSdkVersion 26
+  buildToolsVersion "26.0.2"
 
   defaultConfig {
-    minSdkVersion 11
+    minSdkVersion 14
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
   sourceSets {
@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-  compile 'com.android.support:recyclerview-v7:25.1.0'
+  compile 'com.android.support:recyclerview-v7:26.1.0'
 
   androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
   androidTestCompile 'com.android.support.test:runner:0.5'
