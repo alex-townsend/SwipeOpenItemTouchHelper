@@ -12,7 +12,7 @@ jdk:
 
 before_install:
   - yes | sdkmanager "platforms;android-28"
-  - yes | sdkmanager "system-images;android-21;default;armeabi-v7a"
+  - echo y | sdkmanager "system-images;android-21;default;armeabi-v7a"
   - echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
   - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
 
