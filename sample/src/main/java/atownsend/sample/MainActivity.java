@@ -1,13 +1,14 @@
 package atownsend.sample;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import atownsend.swipeopenhelper.SwipeOpenItemTouchHelper;
 
 /**
@@ -21,10 +22,10 @@ public class MainActivity extends AppCompatActivity implements TestAdapter.Butto
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+    final RecyclerView recyclerView = findViewById(R.id.recycler_view);
     adapter = new TestAdapter(this, false, this);
     helper = new SwipeOpenItemTouchHelper(new SwipeOpenItemTouchHelper.SimpleCallback(
         SwipeOpenItemTouchHelper.START | SwipeOpenItemTouchHelper.END));
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements TestAdapter.Butto
     }
   }
 
-  @Override protected void onSaveInstanceState(Bundle outState) {
+  @Override protected void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     helper.onSaveInstanceState(outState);
   }

@@ -5,19 +5,19 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.support.annotation.NonNull;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.action.GeneralLocation;
-import android.support.test.espresso.action.GeneralSwipeAction;
-import android.support.test.espresso.action.Press;
-import android.support.test.espresso.action.Swipe;
-import android.support.test.espresso.matcher.BoundedMatcher;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
+import androidx.test.espresso.matcher.BoundedMatcher;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import atownsend.swipeopenhelper.test.R;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -26,21 +26,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
-import static android.support.test.espresso.core.deps.guava.base.Preconditions.checkNotNull;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.core.util.Preconditions.checkNotNull;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 /**
  * Instrumentation tests for SwipeOpenItemTouchHelper
  */
-@RunWith(AndroidJUnit4.class) public class SwipeOpenItemTouchHelperTest {
+@RunWith(AndroidJUnit4.class)
+public class SwipeOpenItemTouchHelperTest {
 
   @Rule public final ActivityTestRule<SwipeOpenItemTouchHelperTestActivity> activityRule =
       new ActivityTestRule<>(SwipeOpenItemTouchHelperTestActivity.class);
 
-  private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+  private final Instrumentation instrumentation =
+      androidx.test.platform.app.InstrumentationRegistry.getInstrumentation();
 
   private SwipeOpenItemTouchHelper helper;
 
@@ -164,6 +166,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
   /**
    * Uses a slow swipe to simulate a scroll
+   *
    * @return the view action
    */
   private ViewAction scroll() {
@@ -185,11 +188,13 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
   /**
    * Matcher for finding the SwipeView for a SwipeOpenViewHolders in a RecyclerView
+   *
    * @param position the position of the view holder
    * @param itemMatcher matcher to compare the SwipeView to
    * @return a Matcher that compares a SwipeOpenViewHolder at a position with a passed in matcher
    */
-  public static Matcher<View> atPosition(final int position, @NonNull final Matcher<View> itemMatcher) {
+  public static Matcher<View> atPosition(final int position,
+      @NonNull final Matcher<View> itemMatcher) {
     checkNotNull(itemMatcher);
     return new BoundedMatcher<View, RecyclerView>(RecyclerView.class) {
       @Override protected boolean matchesSafely(RecyclerView view) {
@@ -201,17 +206,16 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
         return itemMatcher.matches(((SwipeOpenViewHolder) viewHolder).getSwipeView());
       }
 
-      @Override
-      public void describeTo(Description description) {
+      @Override public void describeTo(Description description) {
         description.appendText("has item at position " + position + ": ");
         itemMatcher.describeTo(description);
       }
-
     };
   }
 
   /**
    * Checks for a positive or negative translationX in a View
+   *
    * @param positive true if positive translation, false if negative
    * @return matcher for checking positive/negative translationX
    */
@@ -234,6 +238,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
   /**
    * Checks for zero translation of a view
+   *
    * @return a matcher that checks that all translation on a view is zero
    */
   public static Matcher<View> checkZeroTranslation() {
@@ -244,7 +249,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
       }
 
       @Override protected boolean matchesSafely(View item) {
-          return ViewCompat.getTranslationX(item) == 0 && ViewCompat.getTranslationY(item) == 0;
+        return ViewCompat.getTranslationX(item) == 0 && ViewCompat.getTranslationY(item) == 0;
       }
     };
   }

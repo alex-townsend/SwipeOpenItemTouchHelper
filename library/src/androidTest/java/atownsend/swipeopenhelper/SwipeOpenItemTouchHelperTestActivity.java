@@ -3,14 +3,14 @@ package atownsend.swipeopenhelper;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import atownsend.swipeopenhelper.test.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +50,9 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
   private static final class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
-    private List<String> items = new ArrayList<>();
+    private List<String> items;
 
-    public TestAdapter(Context context) {
+    TestAdapter(Context context) {
       this.context = context;
       items = generateTestData();
     }
@@ -100,12 +100,12 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
       return testData;
     }
 
-    @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
       return new TestViewHolder(
           LayoutInflater.from(context).inflate(R.layout.test_view_holder, parent, false));
     }
 
-    @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
       ((TestViewHolder) holder).textView.setText(items.get(position));
     }
 
@@ -115,17 +115,17 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
 
     static class TestViewHolder extends BaseSwipeOpenViewHolder {
 
-      public LinearLayout contentView;
-      public TextView textView;
-      public TextView deleteButton;
-      public TextView editButton;
+      LinearLayout contentView;
+      TextView textView;
+      TextView deleteButton;
+      TextView editButton;
 
-      public TestViewHolder(final View view) {
+      TestViewHolder(final View view) {
         super(view);
-        contentView = (LinearLayout) view.findViewById(R.id.content_view);
-        textView = (TextView) view.findViewById(R.id.display_text);
-        deleteButton = (TextView) view.findViewById(R.id.delete_button);
-        editButton = (TextView) view.findViewById(R.id.edit_button);
+        contentView = view.findViewById(R.id.content_view);
+        textView = view.findViewById(R.id.display_text);
+        deleteButton = view.findViewById(R.id.delete_button);
+        editButton = view.findViewById(R.id.edit_button);
       }
 
       @NonNull @Override public View getSwipeView() {

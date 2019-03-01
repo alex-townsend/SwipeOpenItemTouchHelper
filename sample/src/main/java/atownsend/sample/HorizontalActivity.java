@@ -3,11 +3,11 @@ package atownsend.sample;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import atownsend.swipeopenhelper.SwipeOpenItemTouchHelper;
 
 
@@ -23,10 +23,10 @@ public class HorizontalActivity extends AppCompatActivity implements TestAdapter
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_horizontal);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    final RecyclerView recyclerView = (RecyclerView) findViewById(atownsend.sample.R.id.recycler_view);
+    final RecyclerView recyclerView = findViewById(R.id.recycler_view);
     adapter = new TestAdapter(this, true, this);
     SwipeOpenItemTouchHelper helper = new SwipeOpenItemTouchHelper(new SwipeOpenItemTouchHelper.SimpleCallback(
         SwipeOpenItemTouchHelper.UP | SwipeOpenItemTouchHelper.DOWN));
