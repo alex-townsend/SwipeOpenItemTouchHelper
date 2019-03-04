@@ -1,13 +1,10 @@
 package atownsend.swipeopenhelper;
 
-import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.GeneralLocation;
 import androidx.test.espresso.action.GeneralSwipeAction;
@@ -16,12 +13,9 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import atownsend.swipeopenhelper.test.R;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,134 +28,120 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 /**
  * Instrumentation tests for SwipeOpenItemTouchHelper
  */
-@RunWith(AndroidJUnit4.class)
-public class SwipeOpenItemTouchHelperTest {
+@RunWith(AndroidJUnit4.class) public class SwipeOpenItemTouchHelperTest {
 
-  @Rule public final ActivityTestRule<SwipeOpenItemTouchHelperTestActivity> activityRule =
-      new ActivityTestRule<>(SwipeOpenItemTouchHelperTestActivity.class);
-
-  private final Instrumentation instrumentation =
-      androidx.test.platform.app.InstrumentationRegistry.getInstrumentation();
-
-  private SwipeOpenItemTouchHelper helper;
-
-  @Before public void setup() {
-    SwipeOpenItemTouchHelperTestActivity activity = activityRule.getActivity();
-    // reset the orientation to portrait -- seems to prevent tests from failing after the state saving test
-    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    helper = activity.helper;
-  }
+  private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
   @Test public void swipeCloseOnActionTest() {
 
-    // swipe open position 1
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> ignored =
+             ActivityScenario.launch(SwipeOpenItemTouchHelperTestActivity.class)) {
 
-    // swipe open position 3
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, swipeLeft()));
+      // swipe open position 1
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
 
-    // position 1 should have closed, and position 3 should be open
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(3, checkTranslationX(false))));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+      // swipe open position 3
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, swipeLeft()));
+
+      // position 1 should have closed, and position 3 should be open
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(3, checkTranslationX(false))));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+    }
   }
 
   @Test public void scrollCloseOnActionTest() {
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> ignored = ActivityScenario.launch(
+        SwipeOpenItemTouchHelperTestActivity.class)) {
 
-    // swipe open position 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeRight()));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(true))));
+      // swipe open position 2
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeRight()));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(true))));
 
-    // scroll on position 3
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, scroll()));
+      // scroll on position 3
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, scroll()));
 
-    // position 2 should now be closed
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      // position 2 should now be closed
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+    }
   }
 
-  //@Test
+  @Test
   public void stateSavingTest() {
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.setCloseOnAction(false);
-      }
-    });
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> scenario = ActivityScenario.launch(
+        SwipeOpenItemTouchHelperTestActivity.class)) {
 
-    // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
+      scenario.onActivity(activity -> activity.helper.setCloseOnAction(false));
 
-    // rotate the screen
-    rotateScreen();
+      // open positions 1 and 2
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
 
-    // both positions should still be open
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
+      // recreate the activity
+      scenario.recreate();
+
+      // both positions should still be open
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
+    }
   }
 
   @Test public void closePositionsTest() {
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.setCloseOnAction(false);
-      }
-    });
-    // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> scenario = ActivityScenario.launch(
+        SwipeOpenItemTouchHelperTestActivity.class)) {
 
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.closeOpenPosition(1);
-        helper.closeOpenPosition(2);
-      }
-    });
+      scenario.onActivity(activity -> activity.helper.setCloseOnAction(false));
 
-    // both positions should be closed
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      // open positions 1 and 2
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
+
+      scenario.onActivity(activity -> {
+        activity.helper.closeOpenPosition(1);
+        activity.helper.closeOpenPosition(2);
+      });
+
+      // both positions should be closed
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+    }
   }
 
   @Test public void closeAllPositionsTest() {
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.setCloseOnAction(false);
-      }
-    });
-    // open positions 1 and 2
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
-    onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> scenario =
+             ActivityScenario.launch(SwipeOpenItemTouchHelperTestActivity.class)) {
+      scenario.onActivity(activity -> activity.helper.setCloseOnAction(false));
+      // open positions 1 and 2
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
+      onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeLeft()));
 
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.closeAllOpenPositions();
-      }
-    });
+      scenario.onActivity(activity -> activity.helper.closeAllOpenPositions());
 
-    // both positions should be closed
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      // both positions should be closed
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+    }
   }
 
   @Test public void openPositionTest() {
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.setCloseOnAction(true);
-        helper.openPositionStart(1);
-      }
-    });
-    instrumentation.waitForIdleSync();
+    try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> scenario =
+             ActivityScenario.launch(SwipeOpenItemTouchHelperTestActivity.class)) {
+      scenario.onActivity(activity -> {
+        activity.helper.setCloseOnAction(true);
+        activity.helper.openPositionStart(1);
+      });
 
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
+      instrumentation.waitForIdleSync();
 
-    instrumentation.runOnMainSync(new Runnable() {
-      @Override public void run() {
-        helper.openPositionEnd(2);
-      }
-    });
-    instrumentation.waitForIdleSync();
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
 
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
-    onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+
+      scenario.onActivity(activity -> activity.helper.openPositionEnd(2));
+      instrumentation.waitForIdleSync();
+
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
+      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+    }
   }
 
   /**
@@ -172,18 +152,6 @@ public class SwipeOpenItemTouchHelperTest {
   private ViewAction scroll() {
     return new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.BOTTOM_CENTER,
         GeneralLocation.TOP_CENTER, Press.FINGER);
-  }
-
-  /**
-   * Rotates the screen of the test activity
-   */
-  private void rotateScreen() {
-    final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-    final int orientation = context.getResources().getConfiguration().orientation;
-
-    Activity activity = activityRule.getActivity();
-    activity.setRequestedOrientation((orientation == Configuration.ORIENTATION_PORTRAIT)
-        ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   }
 
   /**
