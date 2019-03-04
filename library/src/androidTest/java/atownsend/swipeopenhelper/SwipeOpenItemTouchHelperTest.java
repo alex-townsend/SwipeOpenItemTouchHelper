@@ -44,6 +44,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
       // swipe open position 3
       onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, swipeLeft()));
 
+      instrumentation.waitForIdleSync();
       // position 1 should have closed, and position 3 should be open
       onView(withId(R.id.test_recycler)).check(matches(atPosition(3, checkTranslationX(false))));
       onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
