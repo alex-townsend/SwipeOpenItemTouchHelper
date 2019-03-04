@@ -4,12 +4,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.alex-townsend'
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.2"
+  compileSdkVersion 28
+  buildToolsVersion "28.0.3"
 
   defaultConfig {
     minSdkVersion 14
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }
   sourceSets {
     androidTest {
@@ -19,8 +19,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   packagingOptions {
@@ -30,15 +30,14 @@ android {
 }
 
 dependencies {
-  compile 'com.android.support:recyclerview-v7:26.1.0'
 
-  androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-  androidTestCompile 'com.android.support.test:runner:0.5'
-  androidTestCompile 'com.android.support.test:rules:0.5'
-  androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.2') {
-    exclude module: 'support-v4'
-  }
-  androidTestCompile 'com.google.truth:truth:0.27'
+  implementation 'androidx.recyclerview:recyclerview:1.0.0'
+
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+  androidTestImplementation "androidx.test.ext:junit:1.1.0"
+  androidTestImplementation 'androidx.test:runner:1.1.1'
+  androidTestImplementation 'androidx.test:rules:1.1.1'
+  androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.1'
 }
 
 

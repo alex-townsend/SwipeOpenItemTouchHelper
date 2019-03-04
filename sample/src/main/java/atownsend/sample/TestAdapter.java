@@ -1,14 +1,14 @@
 package atownsend.sample;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import atownsend.swipeopenhelper.BaseSwipeOpenViewHolder;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +18,15 @@ public class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
   private final Context context;
   private final boolean horizontal;
   private final ButtonCallbacks callbacks;
-  private List<String> items = new ArrayList<>();
+  private List<String> items;
 
   interface ButtonCallbacks {
     void removePosition(int position);
+
     void editPosition(int position);
   }
 
-  public TestAdapter(Context context, boolean horizontal, ButtonCallbacks callbacks) {
+  TestAdapter(Context context, boolean horizontal, ButtonCallbacks callbacks) {
     this.context = context;
     this.horizontal = horizontal;
     this.callbacks = callbacks;
@@ -75,18 +76,20 @@ public class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     return testData;
   }
 
-
-  @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+  @NonNull @Override
+  public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     if (horizontal) {
       return new HorizontalTestViewHolder(
-          LayoutInflater.from(context).inflate(R.layout.view_holder_horizontal_view, parent, false), callbacks);
+          LayoutInflater.from(context).inflate(R.layout.view_holder_horizontal_view, parent, false),
+          callbacks);
     } else {
       return new TestViewHolder(
-          LayoutInflater.from(context).inflate(R.layout.view_holder_view, parent, false), callbacks);
+          LayoutInflater.from(context).inflate(R.layout.view_holder_view, parent, false),
+          callbacks);
     }
   }
 
-  @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+  @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
     if (horizontal) {
       ((HorizontalTestViewHolder) holder).textView.setText(items.get(position));
     } else {
@@ -98,24 +101,24 @@ public class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     return items.size();
   }
 
-  public void removePosition(int adapterPosition) {
+  void removePosition(int adapterPosition) {
     items.remove(adapterPosition);
     notifyItemRemoved(adapterPosition);
   }
 
   static class TestViewHolder extends BaseSwipeOpenViewHolder {
 
-    public LinearLayout contentView;
-    public TextView textView;
-    public TextView deleteButton;
-    public TextView editButton;
+    LinearLayout contentView;
+    TextView textView;
+    TextView deleteButton;
+    TextView editButton;
 
-    public TestViewHolder(final View view, final ButtonCallbacks callbacks) {
+    TestViewHolder(final View view, final ButtonCallbacks callbacks) {
       super(view);
-      contentView = (LinearLayout) view.findViewById(R.id.content_view);
-      textView = (TextView) view.findViewById(R.id.display_text);
-      deleteButton = (TextView) view.findViewById(R.id.delete_button);
-      editButton = (TextView) view.findViewById(R.id.edit_button);
+      contentView = view.findViewById(R.id.content_view);
+      textView = view.findViewById(R.id.display_text);
+      deleteButton = view.findViewById(R.id.delete_button);
+      editButton = view.findViewById(R.id.edit_button);
 
       deleteButton.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View v) {
@@ -152,17 +155,17 @@ public class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
   }
 
   static class HorizontalTestViewHolder extends BaseSwipeOpenViewHolder {
-    public LinearLayout contentView;
-    public TextView textView;
-    public TextView deleteButton;
-    public TextView editButton;
+    LinearLayout contentView;
+    TextView textView;
+    TextView deleteButton;
+    TextView editButton;
 
-    public HorizontalTestViewHolder(final View view, final ButtonCallbacks callbacks) {
+    HorizontalTestViewHolder(final View view, final ButtonCallbacks callbacks) {
       super(view);
-      contentView = (LinearLayout) view.findViewById(R.id.content_view);
-      textView = (TextView) view.findViewById(R.id.display_text);
-      deleteButton = (TextView) view.findViewById(R.id.delete_button);
-      editButton = (TextView) view.findViewById(R.id.edit_button);
+      contentView = view.findViewById(R.id.content_view);
+      textView = view.findViewById(R.id.display_text);
+      deleteButton = view.findViewById(R.id.delete_button);
+      editButton = view.findViewById(R.id.edit_button);
 
       deleteButton.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View v) {
