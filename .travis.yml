@@ -20,17 +20,11 @@ android:
     - 'android-sdk-preview-license-.+'
     - 'android-sdk-license-.+'
 
-before_install:
-  - echo yes | sdkmanager "tools"
-  - echo yes | sdkmanager "platform-tools"
-  - echo yes | sdkmanager "build-tools;28.0.3"
-  - echo yes | sdkmanager "platforms;android-28" # Latest platform required by SDK tools
 
 install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
 before_script:
-  - sdkmanager "system-images;android-21;default;armeabi-v7a"
-  - echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
+  - echo no | $ANDROID_HOME/tools/bin/avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
   - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell settings put global window_animation_scale 0 &
