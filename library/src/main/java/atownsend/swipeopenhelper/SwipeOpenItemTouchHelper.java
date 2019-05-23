@@ -759,7 +759,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
    *
    * @param position the position
    */
-  void openPositionStart(final int position) {
+  public void openPositionStart(final int position) {
     openPosition(position, SavedOpenState.START_OPEN);
   }
 
@@ -768,7 +768,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
    *
    * @param position the position
    */
-  void openPositionEnd(final int position) {
+  public void openPositionEnd(final int position) {
     openPosition(position, SavedOpenState.END_OPEN);
   }
 
@@ -803,7 +803,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
    *
    * @param position the position to close
    */
-  void closeOpenPosition(final int position) {
+  public void closeOpenPosition(final int position) {
     if (recyclerView == null) {
       return;
     }
@@ -824,7 +824,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
   /**
    * Closes all currently opened SwipeOpenViewHolders for the currently attached RecyclerView
    */
-  void closeAllOpenPositions() {
+  public void closeAllOpenPositions() {
     if (recyclerView == null) {
       return;
     }
@@ -1342,11 +1342,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       this.targetX = targetX;
       this.targetY = targetY;
       valueAnimator = ValueAnimator.ofFloat(0, 1);
-      valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-        @Override public void onAnimationUpdate(ValueAnimator animation) {
-          setFraction(animation.getAnimatedFraction());
-        }
-      });
+      valueAnimator.addUpdateListener(animation -> setFraction(animation.getAnimatedFraction()));
       valueAnimator.setTarget(viewHolder.getViewHolder().itemView);
       valueAnimator.addListener(this);
       setFraction(0f);

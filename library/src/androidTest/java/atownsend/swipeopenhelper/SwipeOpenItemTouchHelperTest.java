@@ -21,9 +21,12 @@ import org.junit.runner.RunWith;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
+import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 /**
  * Instrumentation tests for SwipeOpenItemTouchHelper
@@ -131,16 +134,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
         activity.helper.openPositionStart(1);
       });
 
-      instrumentation.waitForIdleSync();
-
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
-
-
+      onView(withText("Test 1")).check(matches(checkTranslationX(true)));
       scenario.onActivity(activity -> activity.helper.openPositionEnd(2));
-      instrumentation.waitForIdleSync();
 
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+      onView(withText("Test 2")).check(matches(checkTranslationX(false)));
+      onView(withText("Test 1")).check(matches(checkZeroTranslation()));
     }
   }
 
@@ -220,15 +218,5 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
         return item.getTranslationX() == 0;
       }
     };
-  }
-
-  private static ViewAction swipeRight() {
-    return new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
-        GeneralLocation.CENTER_RIGHT, Press.FINGER);
-  }
-
-  private static ViewAction swipeLeft() {
-    return new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
-        GeneralLocation.CENTER_LEFT, Press.FINGER);
   }
 }

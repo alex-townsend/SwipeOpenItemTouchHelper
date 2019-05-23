@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -66,36 +65,20 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
       testData.add("Test 3");
       testData.add("Test 4");
       testData.add("Test 5");
-      testData.add("Test 0");
-      testData.add("Test 1");
-      testData.add("Test 2");
-      testData.add("Test 3");
-      testData.add("Test 4");
-      testData.add("Test 5");
-      testData.add("Test 0");
-      testData.add("Test 1");
-      testData.add("Test 2");
-      testData.add("Test 3");
-      testData.add("Test 4");
-      testData.add("Test 5");
-      testData.add("Test 0");
-      testData.add("Test 1");
-      testData.add("Test 2");
-      testData.add("Test 3");
-      testData.add("Test 4");
-      testData.add("Test 5");
-      testData.add("Test 0");
-      testData.add("Test 1");
-      testData.add("Test 2");
-      testData.add("Test 3");
-      testData.add("Test 4");
-      testData.add("Test 5");
-      testData.add("Test 0");
-      testData.add("Test 1");
-      testData.add("Test 2");
-      testData.add("Test 3");
-      testData.add("Test 4");
-      testData.add("Test 5");
+      testData.add("Test 6");
+      testData.add("Test 7");
+      testData.add("Test 8");
+      testData.add("Test 9");
+      testData.add("Test 10");
+      testData.add("Test 11");
+      testData.add("Test 12");
+      testData.add("Test 13");
+      testData.add("Test 14");
+      testData.add("Test 15");
+      testData.add("Test 16");
+      testData.add("Test 17");
+      testData.add("Test 18");
+      testData.add("Test 19");
 
       return testData;
     }
@@ -106,7 +89,7 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
     }
 
     @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-      ((TestViewHolder) holder).textView.setText(items.get(position));
+      ((TestViewHolder) holder).contentView.setText(items.get(position));
     }
 
     @Override public int getItemCount() {
@@ -115,15 +98,13 @@ public class SwipeOpenItemTouchHelperTestActivity extends Activity {
 
     static class TestViewHolder extends BaseSwipeOpenViewHolder {
 
-      LinearLayout contentView;
-      TextView textView;
+      TextView contentView;
       TextView deleteButton;
       TextView editButton;
 
       TestViewHolder(final View view) {
         super(view);
         contentView = view.findViewById(R.id.content_view);
-        textView = view.findViewById(R.id.display_text);
         deleteButton = view.findViewById(R.id.delete_button);
         editButton = view.findViewById(R.id.edit_button);
       }

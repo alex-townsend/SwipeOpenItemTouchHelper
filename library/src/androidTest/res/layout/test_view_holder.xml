@@ -24,24 +24,15 @@
       android:gravity="center"
       android:text="Edit"/>
 
-  <LinearLayout
+  <TextView
       android:id="@+id/content_view"
+      android:text="sample text"
       android:layout_width="match_parent"
       android:layout_height="60dp"
       android:background="@android:color/white"
       android:paddingLeft="8dp"
       android:paddingRight="8dp"
       android:clickable="true"
-      android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/display_text"
-        android:text="sample text"
-        android:gravity="center_vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-  </LinearLayout>
-
+      android:gravity="center_vertical"/>
 
 </FrameLayout>
