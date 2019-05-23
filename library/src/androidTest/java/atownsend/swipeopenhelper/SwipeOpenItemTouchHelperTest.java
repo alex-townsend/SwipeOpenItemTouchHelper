@@ -1,9 +1,6 @@
 package atownsend.swipeopenhelper;
 
-import android.app.Instrumentation;
 import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.GeneralLocation;
@@ -12,14 +9,12 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 import atownsend.swipeopenhelper.test.R;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.action.ViewActions.swipeRight;
@@ -33,8 +28,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  */
 @RunWith(AndroidJUnit4.class) public class SwipeOpenItemTouchHelperTest {
 
-  private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-
   @Test public void swipeCloseOnActionTest() {
 
     try (ActivityScenario<SwipeOpenItemTouchHelperTestActivity> ignored =
@@ -42,14 +35,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
       // swipe open position 1
       onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(1, swipeRight()));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
+      onView(withText("Test 1")).check(matches(checkTranslationX(true)));
 
       // swipe open position 3
       onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, swipeLeft()));
 
       // position 1 should have closed, and position 3 should be open
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(3, checkTranslationX(false))));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
+      onView(withText("Test 3")).check(matches(checkTranslationX(false)));
+      onView(withText("Test 1")).check(matches(checkZeroTranslation()));
     }
   }
 
@@ -59,13 +52,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
       // swipe open position 2
       onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(2, swipeRight()));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(true))));
+      onView(withText("Test 2")).check(matches(checkTranslationX(true)));
 
       // scroll on position 3
       onView(withId(R.id.test_recycler)).perform(actionOnItemAtPosition(3, scroll()));
 
       // position 2 should now be closed
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      onView(withText("Test 2")).check(matches(checkZeroTranslation()));
     }
   }
 
@@ -84,8 +77,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
       scenario.recreate();
 
       // both positions should still be open
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkTranslationX(true))));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkTranslationX(false))));
+      onView(withText("Test 1")).check(matches(checkTranslationX(true)));
+      onView(withText("Test 2")).check(matches(checkTranslationX(false)));
     }
   }
 
@@ -105,8 +98,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
       });
 
       // both positions should be closed
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      onView(withText("Test 1")).check(matches(checkZeroTranslation()));
+      onView(withText("Test 2")).check(matches(checkZeroTranslation()));
     }
   }
 
@@ -121,8 +114,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
       scenario.onActivity(activity -> activity.helper.closeAllOpenPositions());
 
       // both positions should be closed
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(1, checkZeroTranslation())));
-      onView(withId(R.id.test_recycler)).check(matches(atPosition(2, checkZeroTranslation())));
+      onView(withText("Test 1")).check(matches(checkZeroTranslation()));
+      onView(withText("Test 2")).check(matches(checkZeroTranslation()));
     }
   }
 
@@ -150,33 +143,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
   private ViewAction scroll() {
     return new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.BOTTOM_CENTER,
         GeneralLocation.TOP_CENTER, Press.FINGER);
-  }
-
-  /**
-   * Matcher for finding the SwipeView for a SwipeOpenViewHolders in a RecyclerView
-   *
-   * @param position the position of the view holder
-   * @param itemMatcher matcher to compare the SwipeView to
-   * @return a Matcher that compares a SwipeOpenViewHolder at a position with a passed in matcher
-   */
-  public static Matcher<View> atPosition(final int position,
-      @NonNull final Matcher<View> itemMatcher) {
-    checkNotNull(itemMatcher);
-    return new BoundedMatcher<View, RecyclerView>(RecyclerView.class) {
-      @Override protected boolean matchesSafely(RecyclerView view) {
-        RecyclerView.ViewHolder viewHolder = view.findViewHolderForAdapterPosition(position);
-        if (!(viewHolder instanceof SwipeOpenViewHolder)) {
-          // has no item on such position
-          return false;
-        }
-        return itemMatcher.matches(((SwipeOpenViewHolder) viewHolder).getSwipeView());
-      }
-
-      @Override public void describeTo(Description description) {
-        description.appendText("has item at position " + position + ": ");
-        itemMatcher.describeTo(description);
-      }
-    };
   }
 
   /**
