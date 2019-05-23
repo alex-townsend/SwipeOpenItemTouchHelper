@@ -20,11 +20,6 @@ android:
     - 'android-sdk-preview-license-.+'
     - 'android-sdk-license-.+'
 
-before_install:
-  # Install SDK license so Android Gradle plugin can install deps.
-  - mkdir -p "$ANDROID_HOME/licenses"
-  - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
-
 install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
 before_script:
