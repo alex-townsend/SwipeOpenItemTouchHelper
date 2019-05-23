@@ -10,15 +10,18 @@ before_install:
 # Install the rest of tools (e.g., avdmanager)
 - yes | sdkmanager tools
 # Install the system image
-- sdkmanager "system-images;android-21;default;armeabi-v7a"
+- sdkmanager "system-images;android-18;default;armeabi-v7a"
 # Create and start emulator for the script. Meant to race the install task.
-- echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
+- echo no | avdmanager create avd --force -n test -k "system-images;android-18;default;armeabi-v7a"
 - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
 
 install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
 before_script:
 - android-wait-for-emulator
+- adb shell settings put global window_animation_scale 0 &
+- adb shell settings put global transition_animation_scale 0 &
+- adb shell settings put global animator_duration_scale 0 &
 - adb shell input keyevent 82
 
 script:

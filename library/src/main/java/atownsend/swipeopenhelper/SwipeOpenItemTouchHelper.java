@@ -1342,11 +1342,7 @@ public class SwipeOpenItemTouchHelper extends RecyclerView.ItemDecoration
       this.targetX = targetX;
       this.targetY = targetY;
       valueAnimator = ValueAnimator.ofFloat(0, 1);
-      valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-        @Override public void onAnimationUpdate(ValueAnimator animation) {
-          setFraction(animation.getAnimatedFraction());
-        }
-      });
+      valueAnimator.addUpdateListener(animation -> setFraction(animation.getAnimatedFraction()));
       valueAnimator.setTarget(viewHolder.getViewHolder().itemView);
       valueAnimator.addListener(this);
       setFraction(0f);
