@@ -21,14 +21,10 @@ android:
     - 'android-sdk-license-.+'
 
 before_install:
-  - sdkmanager --list || true # List all available targets, device definitions and AVDs.
-  # Update sdk tools to latest version and install/update components
   - echo yes | sdkmanager "tools"
   - echo yes | sdkmanager "platform-tools"
   - echo yes | sdkmanager "build-tools;28.0.3"
   - echo yes | sdkmanager "platforms;android-28" # Latest platform required by SDK tools
-  - echo yes | sdkmanager --update
-  - echo yes | sdkmanager --licenses
 
 install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
