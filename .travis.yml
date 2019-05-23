@@ -25,7 +25,10 @@ install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
 before_script:
   - echo $ANDROID_HOME
-  - echo no | $ANDROID_HOME/tools/bin/avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
+  - echo $ANDROID_HOME/emulator/emulator
+  - ls $ANDROID_HOME/tools
+  - ls $ANDROID_HOMEtools
+  - echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
   - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell settings put global window_animation_scale 0 &
