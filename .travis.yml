@@ -1,28 +1,46 @@
 language: android
 
 jdk:
-- oraclejdk8
+  - oraclejdk8
+
+env:
+  global:
+    - ANDROID_API_LEVEL=28
+    - ANDROID_BUILD_TOOLS_VERSION=28.0.3
+
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-28.0.3
+    - android-28
+    - android-21
+    - sys-img-armeabi-v7a-android-21
+  licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
 
 before_install:
-# Install SDK license so Android Gradle plugin can install deps.
-- mkdir "$ANDROID_HOME/licenses" || true
-- echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
-# Install the rest of tools (e.g., avdmanager)
-- yes | sdkmanager tools
-# Install the system image
-- sdkmanager "system-images;android-21;default;armeabi-v7a"
-# Create and start emulator for the script. Meant to race the install task.
-- echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
-- $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+  # Install SDK license so Android Gradle plugin can install deps.
+  - mkdir -p "$ANDROID_HOME/licenses"
+  - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
 
 install: ./gradlew :library:build :library:assembleAndroidTest --stacktrace
 
 before_script:
-- android-wait-for-emulator
-- adb shell input keyevent 82 &
+  - echo no | avdmanager create avd --force -n test -k "system-images;android-21;default;armeabi-v7a"
+  - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell settings put global window_animation_scale 0 &
+  - adb shell settings put global transition_animation_scale 0 &
+  - adb shell settings put global animator_duration_scale 0 &
+
+  # Wake up
+  - adb shell input keyevent 82 &
+  - adb shell input keyevent 1 &
 
 script:
-- ./gradlew :library:connectedCheck --stacktrace
+  - ./gradlew :library:connectedCheck --stacktrace
 
 notifications:
   email: false
@@ -35,4 +53,4 @@ branches:
 
 cache:
   directories:
-  - $HOME/.gradle
+    - $HOME/.gradle
